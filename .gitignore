@@ -1,0 +1,40 @@
+# Unreal generated files, including nested projects
+Intermediate/
+Saved/
+DerivedDataCache/
+
+# Main project build output; preserve required binary-only plugin files
+/Binaries/
+/Build/Windows/FileOpenOrder/
+
+# Visual Studio / Rider local files
+.vs/
+.idea/
+*.sln
+*.suo
+*.user
+*.vcxproj
+*.vcxproj.filters
+*.VC.db
+*.VC.opendb
+*.opensdf
+*.sdf
+
+# Local tool state
+/.reasonix/
+/.claude/settings.local.json
+
+# Logs, Python caches, temporary files
+/logs/
+*.log
+__pycache__/
+*.py[cod]
+*.tmp
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Contains encryption and private signing keys; keep local only
+/Content/RAR/Config/DefaultCrypto.ini
