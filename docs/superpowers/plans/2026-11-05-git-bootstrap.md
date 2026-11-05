@@ -33,17 +33,21 @@
 - [x] Initialize `main`, enable repository-local long paths and install local LFS hooks.
 - [x] Check representative ignored and retained paths, and audit candidate text for credentials.
 - [x] Stage files; verify the index, LFS pointers and non-LFS file sizes.
-- [ ] Obtain an independent configuration review and commit the verified source project.
+- [x] Obtain an independent configuration review and commit the verified source project as d8fe1eb.
 
 ## Task 2: Publish to the selected GitHub repository
 
 - [x] Resolve the user-supplied destination and inspect existing remote history: https://github.com/JOSEPHF691/UE5_FPS_demo.git returned no refs before the first push.
-- [ ] Push Git commits and LFS objects without force, then verify the remote main ref and upload status.
+- [x] Push Git commits and LFS objects without force, then verify the remote main ref and upload status.
 
 ## Verification record
 
 - 5,855 indexed files; 5,663 valid LFS pointer files; 5,206 unique LFS objects (about 4.702 GiB).
 - 296 external actors and 12 external objects retained; known private key and generated paths excluded.
 - Independent configuration and candidate-text credential reviews completed before the first commit.
+- Both Android File Server token cleanups were independently checked against ignored local backups; all other bytes match.
+- `git lfs fsck --objects --pointers` reported `Git LFS fsck OK`; `git fsck --full --no-dangling` exited successfully.
+- All 5,206 LFS objects uploaded successfully. Remote main matched the initial source commit d8fe1eb94bbec41872810b63ab6e1a20d0831e79; LFS status was empty and the working tree was clean before this documentation update.
 - Scope ruling: repository initialization runs in the existing project directory; there is no prior commit or branch to isolate, and no gameplay code or asset is changed.
+- Network ruling: ordinary Git and LFS lost direct connectivity to GitHub port 443. The Windows proxy was already enabled at 127.0.0.1:7890; its connectivity test passed, and using it in repository-local Git configuration allowed the retry to finish.
 - Runtime tests are not needed for version-control configuration; verify index contents, LFS integrity and remote refs instead.

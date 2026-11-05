@@ -26,3 +26,7 @@
 新增较大的二进制素材格式时，先补充 `.gitattributes` 再添加文件。Git LFS 的历史对象占用存储，资产下载使用仓库所有者的流量额度。
 
 远端仓库：`https://github.com/JOSEPHF691/UE5_FPS_demo`。
+
+## 本机网络
+
+本机仓库的 `.git/config` 使用当前 Windows 已启用的代理 `http://127.0.0.1:7890`，以解决 GitHub 直连中断。该配置不随 Git 提交发布；后续推送需保持本机代理服务运行。代理地址变化时使用 `git config --local http.proxy <代理URL>` 更新；恢复直连时使用 `git config --local --unset http.proxy` 移除。
