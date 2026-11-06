@@ -2,9 +2,9 @@
 
 基于 **Unreal Engine 5.7 / C++** 的多人回合制战术 FPS 原型。项目围绕最多 **3v3** 的小队淘汰对抗，串联选队准备、回合经济、武器与护甲、宝箱争夺、观战和断线恢复。
 
-核心对局规则由服务器执行，蓝图与资源用于内容配置和表现。联机采用玩家托管的 **Listen Server**，接入 **Steam Lobby / Session**；本地编辑器测试使用 **OSS Null**。
+核心对局规则由服务器执行，蓝图与资源用于内容配置和表现。目前仅在编辑器 **PIE** 中进行过本地多人联机测试，使用 **OSS Null** 与 IP 网络驱动，以 **Listen Server** 方式调试。**Steam 相关功能尚未测试。**
 
-**技术栈：** C++ · Enhanced Input · UMG · Actor Replication / RPC · OnlineSubsystemSteam · SteamSockets · AIController / NavigationSystem · Git LFS
+**技术栈：** C++ · Enhanced Input · UMG · Actor Replication / RPC · AIController / NavigationSystem · Git LFS
 
 ## 功能概览
 
@@ -15,7 +15,7 @@
 - **狩猎情报**：回合末期周期投递带误差的敌方位置情报，按队伍授权分发，随剩余时间缩短提高频率。
 - **战斗界面与观战**：生命、弹药、护甲、命中和受击反馈，购买界面、队伍名册、队友观战及重连状态界面。
 - **断线恢复**：服务器参赛记录独立于连接生命周期；非主机客户端断线时保留当前回合的存活角色，在同一主机和世界仍存活时尝试恢复控制。
-- **Steam 会话**：原生创建、查找、加入、邀请、离开房间流程，以及会话状态和失败清理逻辑。
+- **PIE 联机调试**：在编辑器的本地多人环境中进行联机测试；Steam 相关功能尚未测试。
 
 ## 对局规则
 
@@ -45,7 +45,7 @@
 | `ATacticalPlayerState` | 队伍、准备和连接状态；拥有者可见的金钱与保存装备 | [TacticalPlayerState.cpp](Source/Tcamp_FPS/Variant_Shooter/TacticalPlayerState.cpp) |
 | `ATacticalCharacter` / 武器组件 | 伤害、护甲、装备、换弹、ADS、死亡掉落和第一人称表现 | [TacticalCharacter.cpp](Source/Tcamp_FPS/Variant_Shooter/TacticalCharacter.cpp) · [Components](Source/Tcamp_FPS/Components/) |
 | `UTacticalMatchRosterSubsystem` | 稳定参赛记录、队伍名额、重连准入和保留角色的恢复 | [TacticalMatchRosterSubsystem.h](Source/Tcamp_FPS/Variant_Shooter/Network/TacticalMatchRosterSubsystem.h) |
-| `UTacticalSessionSubsystem` | Steam / Null 会话、房间状态、邀请、旅行和清理 | [TacticalSessionSubsystem.cpp](Source/Tcamp_FPS/Online/TacticalSessionSubsystem.cpp) |
+| `UTacticalSessionSubsystem` | 会话、房间状态与清理相关代码；Steam 接入尚未测试 | [TacticalSessionSubsystem.cpp](Source/Tcamp_FPS/Online/TacticalSessionSubsystem.cpp) |
 | `UTacticalGameInstance` / `ATacticalPlayerController` | 网络故障恢复、菜单、输入、HUD、购买请求和观战 | [TacticalGameInstance.cpp](Source/Tcamp_FPS/TacticalGameInstance.cpp) · [TacticalPlayerController.cpp](Source/Tcamp_FPS/Variant_Shooter/TacticalPlayerController.cpp) |
 | 宝箱与 AI | 守卫生命周期、区域约束、领取交互与奖励 | [Treasure](Source/Tcamp_FPS/Variant_Shooter/Treasure/) · [AI](Source/Tcamp_FPS/Variant_Shooter/AI/) |
 
@@ -77,7 +77,7 @@ git lfs pull
 3. 打开 `Tcamp_FPS.uproject`，等待首次资源与着色器处理完成。
 
 <details>
-<summary>命令行构建与启动（PowerShell）</summary>
+<summary>命令行编译并启动编辑器（PowerShell）</summary>
 
 在仓库根目录执行，先将引擎路径改为本机 UE 5.7 的安装位置：
 
@@ -102,7 +102,7 @@ $ProjectFile = (Resolve-Path ".\Tcamp_FPS.uproject").Path
 3. 启动两个窗口，分别射击场景中的 **`JOIN RED`** 和 **`JOIN BLUE`** 标靶，完成选队与准备。
 4. 满足准备条件后进入购买阶段，倒计时结束进入战斗。
 
-编辑器启动地图为 `Lvl_FirstPerson`。独立游戏的默认启动地图为 `Entry`，由 `TacticalMenuGameMode` 显示多人菜单；创建房间后加载战斗地图。
+编辑器默认打开 `Lvl_FirstPerson`。上述步骤用于 PIE 本地多人联机测试。
 
 ## 默认操作
 
@@ -122,13 +122,10 @@ $ProjectFile = (Resolve-Path ".\Tcamp_FPS.uproject").Path
 
 输入配置见 [基础输入](Content/Input/) 和 [武器输入](Content/Variant_Shooter/Input/) 中的 Enhanced Input 资产。
 
-## 联机与当前验证边界
+## 联机测试状态
 
-- **编辑器 / PIE**：使用 OSS Null 与 IP 网络驱动进行本地玩法诊断。
-- **打包游戏**：采用 Steam Lobby / Session 和 SteamSockets，由一名玩家托管 Listen Server。跨机器测试需要两台电脑、两个不同的 Steam 账号。
-- 当前配置的 **Steam App ID `480` 用于开发测试**。正式分发前需要项目自己的 App ID，以及相应的 `UE_PROJECT_STEAMSHIPPINGID` 配置。
-- Steam 房间与恢复流程已有 C++ 实现；跨机器、跨网络的打包 Steam 验收仍有待完成。主机退出或丢失时比赛结束，当前没有主机迁移。
-- 多窗口 ADS / 受击表现、实际断线重连、完整 2v2 / 3v3 场景、守卫 AI 和六人帧时间仍有手动验收事项。
+- **已测试环境**：目前仅在 UE 编辑器的 PIE 环境中进行过本地多人联机测试，使用 OSS Null 与 IP 网络驱动。
+- **Steam 相关功能**：尚未进行测试。仓库中保留的相关代码与配置反映开发状态，其实际可用性未验证。
 
 ## 自动化测试
 
@@ -140,7 +137,7 @@ $ProjectFile = (Resolve-Path ".\Tcamp_FPS.uproject").Path
 Automation RunTests Tcamp.Tactical
 ```
 
-规则和配置测试用于检查确定性逻辑；真实 RPC、Steam 会话、渲染效果和多人性能还需要对应的游戏运行验收。
+这些测试用于检查确定性规则与配置逻辑；联机测试范围见上文说明。
 
 ## 目录结构
 
